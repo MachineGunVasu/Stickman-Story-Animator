@@ -25,7 +25,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y): # x , y -> coordinates
         super().__init__()
         self.run_frames = [
-            pygame.image.load(f"stick_run/stick_run_{i:04d}.png").convert_alpha()
+            pygame.image.load(f"resources/stick_run/stick_run_{i:04d}.png").convert_alpha()
             #i:04d makes sure i is in the format 0000,0001 etc (format specifier)
             for i in range(3) #3 because no of images is 3
         ]
@@ -118,7 +118,7 @@ class Platform(pygame.sprite.Sprite):
 class Gear(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__() 
-        self.image = pygame.image.load("armor.png").convert_alpha()
+        self.image = pygame.image.load("resources/armor.png").convert_alpha()
         self.image=pygame.transform.scale(self.image, (40, 60)) # ✅ Proper initialization
         #self.image = pygame.Surface((30, 30), pygame.SRCALPHA)
         #pygame.draw.circle(self.image, (255, 223, 0), (15, 15), 15)
