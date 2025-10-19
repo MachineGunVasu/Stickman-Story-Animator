@@ -15,32 +15,58 @@ BLUE = (100, 150, 255)
 
 # --- Game Variables ---
 gravity = 0.8
-player_speed = 5
-jump_force = 15
+player_speed = 4
+jump_force = 9
 current_level = 1
 font = pygame.font.Font(None, 36)
 
 # --- Player Class ---
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()  # ✅ Correct way to initialize Sprite
-
-        self.image = pygame.image.load("stickman.png").convert_alpha()
-        self.image=pygame.transform.scale(self.image, (40, 60))
-        self.rect = self.image.get_rect(topleft=(x, y))
-
+    def __init__(self, x, y): # x , y -> coordinates
+        super().__init__()
+        self.run_frames = [
+            pygame.image.load(f"stick_run/stick_run_{i:04d}.png").convert_alpha()
+            #i:04d makes sure i is in the format 0000,0001 etc (format specifier)
+            for i in range(3) #3 because no of images is 3
+        ]
+        #loads images frm stick_run and stores in list self.run_frames
+        self.run_frames = [pygame.transform.scale(img, (60, 80)) for img in self.run_frames] #resizes image
+        # Animation variables
+        self.frame_index = 0
+        self.animation_speed = 0.2
+        # default char img
+        self.image = self.run_frames[0] #sets the first image as default 
+        self.rect = self.image.get_rect(topleft=(x, y)) #creates rectangle around char for collision check
+         # Movement
         self.vel_y = 0
         self.on_ground = False
 
-
+    #updates char movemont
     def update(self, platforms):
-        keys = pygame.key.get_pressed()
-        dx = 0
-        if keys[pygame.K_LEFT]:
-            dx = -player_speed
+        keys = pygame.key.get_pressed() #keys store keyboard input (up,left,right etc)
+        dx = 0 #dx contains horizontal movement
+
+        # Move and animate right
         if keys[pygame.K_RIGHT]:
             dx = player_speed
+            self.frame_index += self.animation_speed
+            if self.frame_index >= len(self.run_frames):
+                self.frame_index = 0
+            self.image = self.run_frames[int(self.frame_index)]  
 
+        # Move and animate left
+        elif keys[pygame.K_LEFT]:
+            dx = -player_speed
+            self.frame_index += self.animation_speed
+            if self.frame_index >= len(self.run_frames):
+                self.frame_index = 0
+            # Flip image horizontally
+            self.image = pygame.transform.flip(self.run_frames[int(self.frame_index)], True, False)
+
+        else:
+            # Idle frame
+            self.frame_index = 0
+            self.image = self.run_frames[0]
         # Jump
         if keys[pygame.K_SPACE] and self.on_ground:
             self.vel_y = -jump_force
@@ -50,7 +76,18 @@ class Player(pygame.sprite.Sprite):
         self.vel_y += gravity
         dy = self.vel_y
 
-        # Collision with platforms
+         # --- Horizontal Movement ---
+        self.rect.x += dx
+        for platform in platforms:
+            if platform.rect.colliderect(self.rect.x + dx, self.rect.y, self.rect.width, self.rect.height):
+                if dx > 0:  # moving right
+                    self.rect.right = platform.rect.left
+                elif dx < 0:  # moving left
+                    self.rect.left = platform.rect.right
+                dx = 0
+
+        # --- Vertical Movement ---
+        self.rect.y += dy
         self.on_ground = False
         for platform in platforms:
             if platform.rect.colliderect(self.rect.x, self.rect.y + dy, self.rect.width, self.rect.height):
@@ -58,7 +95,7 @@ class Player(pygame.sprite.Sprite):
                     dy = platform.rect.top - self.rect.bottom
                     self.vel_y = 0
                     self.on_ground = True
-
+                            
         # Move
         self.rect.x += dx
         self.rect.y += dy
@@ -81,7 +118,7 @@ class Platform(pygame.sprite.Sprite):
 class Gear(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__() 
-        self.image = pygame.image.load("armour.png").convert_alpha()
+        self.image = pygame.image.load("armor.png").convert_alpha()
         self.image=pygame.transform.scale(self.image, (40, 60)) # ✅ Proper initialization
         #self.image = pygame.Surface((30, 30), pygame.SRCALPHA)
         #pygame.draw.circle(self.image, (255, 223, 0), (15, 15), 15)
