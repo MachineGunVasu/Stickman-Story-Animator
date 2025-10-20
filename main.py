@@ -137,7 +137,7 @@ def drawGrid():
         pygame.draw.line(screen, GREY, (0, y), (WIDTH, y))
 
 # --- Load Level ---
-with open("level1_data", "rb") as f:
+with open("levels/level1_data", "rb") as f:
     world_data = pickle.load(f)
 
 world = World(world_data)
