@@ -200,7 +200,7 @@ class Levels():
         self.curr = 0
 
     def get_current_level_number(self):
-        return self.current_level_index + 1
+        return self.curr + 1
     
 #FUNCTIONS
 def showHitboxes():  #show hitboxes and rect for debugging
@@ -378,4 +378,5 @@ while run:
             run = False
     pygame.display.update()
 print(world.gate_rect)
+
 pygame.quit()
